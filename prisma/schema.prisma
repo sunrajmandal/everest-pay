@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  phone     String?
+  createdAt DateTime @default(now())
+  orders    Order[]
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  price       Float
+  costPrice   Float?
+  category    String?
+  icon        String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orders      Order[]
+}
+
+model Order {
+  id                      String    @id @default(cuid())
+  orderNumber             String    @unique
+  customerId              String
+  customer                Customer  @relation(fields: [customerId], references: [id])
+  serviceId               String
+  service                 Service   @relation(fields: [serviceId], references: [id])
+  amount                  Float
+  paymentMethod           String
+  paymentStatus           String    @default("pending")
+  transactionId           String?
+  paymentDetails          Json?
+  khaltiPidx              String?
+  esewaTransactionUuid    String?
+  activationStatus        String    @default("pending")
+  externalAccountEmail    String?
+  externalAccountPassword String?
+  activationNotes         String?
+  startDate               DateTime?
+  endDate                 DateTime?
+  reminderSent            Boolean   @default(false)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EmailLog {
+  id        String   @id @default(cuid())
+  to        String
+  subject   String
+  body      String
+  orderId   String?
+  status    String
+  error     String?
+  createdAt DateTime @default(now())
+}
