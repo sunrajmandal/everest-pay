@@ -36,7 +36,7 @@ export default function HomePage() {
       <nav style={{ borderBottom: '1px solid var(--border-color)' }} className="sticky top-0 z-40 backdrop-blur-xl bg-[rgba(10,14,26,0.8)]">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold gradient-text" style={{ textDecoration: 'none' }}>
-            ✦ SubNepal
+            ✦ Everest Pay
           </Link>
           <div className="flex items-center gap-6">
             <Link href="/services" className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors" style={{ textDecoration: 'none' }}>
@@ -259,7 +259,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             {/* Column 1: Brand Info */}
             <div className="space-y-6">
-              <div className="text-2xl font-bold gradient-text">✦ SubNepal</div>
+              <div className="text-2xl font-bold gradient-text">✦ Everest Pay</div>
               <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
                 Secure and trusted subscription platform in Nepal. We provide genuine subscriptions at the most affordable prices with instant activation.
               </p>
@@ -317,7 +317,7 @@ export default function HomePage() {
               <div className="px-3 py-1 bg-[rgba(255,255,255,0.1)] rounded text-white font-bold text-xs italic">mastercard</div>
             </div>
             <div className="text-[var(--text-muted)] text-sm text-center md:text-right">
-              © 2026 SubNepal. All rights reserved. <br className="md:hidden" />
+              © 2026 Everest Pay. All rights reserved. <br className="md:hidden" />
               Crafted with ❤️ for Nepal.
             </div>
           </div>

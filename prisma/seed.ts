@@ -79,8 +79,8 @@ async function main() {
 
   // Seed Settings
   const settings = [
-    { key: 'site_name', value: 'SubNepal' },
-    { key: 'contact_email', value: 'support@subnepal.com' },
+    { key: 'site_name', value: 'Everest Pay' },
+    { key: 'contact_email', value: 'support@everestpay.com' },
     { key: 'contact_phone', value: '+977-9800000000' },
     { key: 'whatsapp', value: '+977-9800000000' },
   ];

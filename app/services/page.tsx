@@ -47,7 +47,7 @@ export default function ServicesPage() {
       <nav style={{ borderBottom: '1px solid var(--border-color)' }} className="sticky top-0 z-40 backdrop-blur-xl bg-[rgba(10,14,26,0.8)]">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold gradient-text" style={{ textDecoration: 'none' }}>
-            ✦ SubNepal
+            ✦ Everest Pay
           </Link>
           <Link href="/services" className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors" style={{ textDecoration: 'none' }}>
             Services

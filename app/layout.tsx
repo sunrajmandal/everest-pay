@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "SubNepal — Premium Subscription Services in Nepal",
+  title: "Everest Pay — Premium Subscription Services in Nepal",
   description: "Get Netflix, Spotify, Xbox Game Pass, Disney+ and more at the best prices in Nepal. Pay with eSewa or Khalti. Instant activation.",
-  keywords: "Nepal subscriptions, Netflix Nepal, Spotify Nepal, eSewa payment, Khalti payment, subscription reseller",
+  keywords: "Nepal subscriptions, Everest Pay, Netflix Nepal, Spotify Nepal, eSewa payment, Khalti payment, subscription reseller",
 };
 
 import WhatsAppButton from "@/components/WhatsAppButton";

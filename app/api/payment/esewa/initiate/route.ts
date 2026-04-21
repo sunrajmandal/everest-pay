@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { buildEsewaFormFields, getEsewaPaymentUrl } from '@/lib/esewa';
-import { v4 as uuidv4 } from 'crypto';
 
 export async function POST(req: NextRequest) {
   try {

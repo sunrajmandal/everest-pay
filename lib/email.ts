@@ -5,8 +5,8 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
-const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'SubNepal';
-const FROM_EMAIL = `${APP_NAME} <noreply@subnepal.com>`;
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'Everest Pay';
+const FROM_EMAIL = `${APP_NAME} <noreply@everestpay.com>`;
 
 async function logEmail(
   to: string,
