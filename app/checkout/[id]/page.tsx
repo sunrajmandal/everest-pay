@@ -16,6 +16,7 @@ interface Service {
   description: string;
   price: number;
   icon: string;
+  category: string;
   durations?: string; // JSON string in DB
 }
 
