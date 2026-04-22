@@ -4,7 +4,11 @@ import bcrypt from 'bcryptjs';
 
 async function main() {
   console.log('🌱 Seeding database...');
-  await initSchema();
+  
+  const isPostgres = process.env.DATABASE_URL?.startsWith('postgres');
+  if (!isPostgres) {
+    await initSchema();
+  }
 
   // Seed Admin
   const adminEmail = process.env.ADMIN_EMAIL || 'sunraz56@gmail.com';
