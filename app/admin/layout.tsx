@@ -68,10 +68,10 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         <div className="p-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center font-bold text-white text-lg">
-              S
+              E
             </div>
             <Link href="/admin/dashboard" className="text-xl font-bold tracking-tight text-white" style={{ textDecoration: 'none' }}>
-              SubNepal
+              Everest Pay
             </Link>
           </div>
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--text-muted)] ml-11">
