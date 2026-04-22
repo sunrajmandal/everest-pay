@@ -1,6 +1,11 @@
 import prisma from '../lib/prisma';
 import { initSchema } from '../lib/db';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load .env.local
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 async function main() {
   console.log('🌱 Seeding database...');
