@@ -26,6 +26,7 @@ model Service {
   icon        String?
   isActive    Boolean  @default(true)
   sortOrder   Int      @default(0)
+  durations   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   orders      Order[]
