@@ -78,7 +78,7 @@ async function main() {
 
   for (const service of services) {
     const { durations, ...rest } = service;
-    await prisma.service.upsert({
+    await (prisma.service as any).upsert({
       where: { name: rest.name },
       update: { ...rest, durations: JSON.stringify(durations) },
       create: { ...rest, durations: JSON.stringify(durations) },
