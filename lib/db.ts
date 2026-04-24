@@ -2,20 +2,27 @@ import { PGlite } from "@electric-sql/pglite";
 import path from "path";
 import fs from "fs";
 
-// Initialize PGlite with persistence
-const dbPath = path.resolve(process.cwd(), "./pgdata");
-if (!fs.existsSync(dbPath)) {
-  fs.mkdirSync(dbPath, { recursive: true });
+// Initialize PGlite with persistence - ONLY in development
+const isProd = process.env.NODE_ENV === "production" || process.env.DATABASE_URL?.startsWith('postgres');
+
+let internalDb: any = null;
+
+if (!isProd) {
+  const dbPath = path.resolve(process.cwd(), "./pgdata");
+  if (!fs.existsSync(dbPath)) {
+    fs.mkdirSync(dbPath, { recursive: true });
+  }
+  internalDb = new PGlite(dbPath);
 }
 
 declare global {
-  var db: PGlite | undefined;
+  var db: any | undefined;
 }
 
-export const db = global.db || new PGlite(dbPath);
+export const db = global.db || internalDb;
 
-if (process.env.NODE_ENV !== "production") {
-  global.db = db;
+if (process.env.NODE_ENV !== "production" && internalDb) {
+  global.db = internalDb;
 }
 
 // Initialize schema
