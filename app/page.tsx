@@ -25,26 +25,17 @@ function PaymentCard() {
   
   useFrame((state) => {
     if (cardRef.current) {
-      // Base float
       const baseRotY = Math.sin(state.clock.elapsedTime * 0.3) * 0.15;
       const baseRotX = Math.cos(state.clock.elapsedTime * 0.2) * 0.1;
-      
-      // Scroll rotation (spins slowly as you scroll)
       const scrollY = window.scrollY || document.documentElement.scrollTop;
       const scrollRotation = scrollY * 0.005; 
-      
-      // Mouse tracking tilt
       const mouseX = (state.mouse.x * Math.PI) / 8;
       const mouseY = (state.mouse.y * Math.PI) / 8;
-      
-      // Flip rotation
       const flipRotation = flipped ? Math.PI : 0;
       
-      // Combine targets
       const targetY = baseRotY + scrollRotation + flipRotation + mouseX;
       const targetX = baseRotX + (scrollY * 0.001) - mouseY;
       
-      // Smooth lerp interpolation
       cardRef.current.rotation.y = THREE.MathUtils.lerp(cardRef.current.rotation.y, targetY, 0.08);
       cardRef.current.rotation.x = THREE.MathUtils.lerp(cardRef.current.rotation.x, targetX, 0.08);
       cardRef.current.position.y = THREE.MathUtils.lerp(cardRef.current.position.y, -(scrollY * 0.002), 0.1);
@@ -67,8 +58,8 @@ function PaymentCard() {
         {/* --- FRONT OF CARD --- */}
         <RoundedBox args={[3.4, 2.1, 0.05]} radius={0.1} smoothness={4}>
           <meshPhysicalMaterial 
-            color="#050505" 
-            metalness={0.9} 
+            color="#ffffff" 
+            metalness={0.1} 
             roughness={0.1} 
             clearcoat={1} 
             clearcoatRoughness={0.1}
@@ -79,30 +70,30 @@ function PaymentCard() {
           <meshStandardMaterial color="#d4af37" metalness={1} roughness={0.3} />
         </RoundedBox>
         {/* Contactless Icon */}
-        <Text position={[1.2, 0.4, 0.03]} fontSize={0.15} color="#fff" fillOpacity={0.5}>
+        <Text position={[1.2, 0.4, 0.03]} fontSize={0.15} color="#333" fillOpacity={0.5}>
           )))
         </Text>
         {/* Card Number */}
-        <Text position={[0, -0.2, 0.03]} fontSize={0.2} color="#fff" letterSpacing={0.1}>
+        <Text position={[0, -0.2, 0.03]} fontSize={0.2} color="#333" letterSpacing={0.1}>
           **** **** **** 2026
         </Text>
         {/* Brand */}
-        <Text position={[-0.7, 0.7, 0.03]} fontSize={0.25} color="#3b82f6" outlineWidth={0.01} outlineColor="#3b82f6">
+        <Text position={[-0.7, 0.7, 0.03]} fontSize={0.25} color="#3b82f6" outlineWidth={0.005} outlineColor="#3b82f6">
           ✦ Everest Pay
         </Text>
         {/* Card holder */}
-        <Text position={[-1.0, -0.6, 0.03]} fontSize={0.12} color="#aaa" letterSpacing={0.05}>
+        <Text position={[-1.0, -0.6, 0.03]} fontSize={0.12} color="#666" letterSpacing={0.05}>
           PREMIUM MEMBER
         </Text>
 
         {/* --- BACK OF CARD --- */}
         {/* Magnetic Strip */}
         <RoundedBox args={[3.4, 0.4, 0.06]} radius={0} position={[0, 0.5, -0.01]}>
-          <meshStandardMaterial color="#000" roughness={0.8} />
+          <meshStandardMaterial color="#222" roughness={0.8} />
         </RoundedBox>
         {/* Signature Box */}
         <RoundedBox args={[2.2, 0.3, 0.06]} radius={0.05} position={[-0.4, 0, -0.01]}>
-          <meshStandardMaterial color="#fff" roughness={0.9} />
+          <meshStandardMaterial color="#f0f0f0" roughness={0.9} />
         </RoundedBox>
         <Text position={[-0.4, 0, -0.04]} rotation={[0, Math.PI, 0]} fontSize={0.15} color="#000" fontStyle="italic">
           Authorized Signature
@@ -114,7 +105,7 @@ function PaymentCard() {
         <Text position={[1.1, 0, -0.04]} rotation={[0, Math.PI, 0]} fontSize={0.15} color="#000">
           123
         </Text>
-        <Text position={[0, -0.7, -0.03]} rotation={[0, Math.PI, 0]} fontSize={0.08} color="#aaa">
+        <Text position={[0, -0.7, -0.03]} rotation={[0, Math.PI, 0]} fontSize={0.08} color="#666">
           Issued by Everest Pay Nepal. If found, please return to any branch.
         </Text>
       </group>
@@ -128,17 +119,17 @@ function HimalayanScene() {
       {/* Background Mountain */}
       <mesh position={[-4, 2, -6]} rotation={[0, Math.PI / 4, 0]}>
         <coneGeometry args={[5, 8, 4]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.9} />
+        <meshStandardMaterial color="#e2e8f0" roughness={0.9} />
       </mesh>
       {/* Foreground Mountain */}
       <mesh position={[3, 1, -4]} rotation={[0, -Math.PI / 6, 0]}>
         <coneGeometry args={[4, 6, 4]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.8} />
+        <meshStandardMaterial color="#cbd5e1" roughness={0.8} />
       </mesh>
       
       {/* Clouds */}
-      <Cloud position={[-5, 4, -5]} speed={0.1} opacity={0.1} color="#3b82f6" />
-      <Cloud position={[5, 3, -3]} speed={0.15} opacity={0.1} color="#d4af37" />
+      <Cloud position={[-5, 4, -5]} speed={0.1} opacity={0.3} color="#ffffff" />
+      <Cloud position={[5, 3, -3]} speed={0.15} opacity={0.2} color="#ffffff" />
     </group>
   );
 }
@@ -146,23 +137,20 @@ function HimalayanScene() {
 function Scene() {
   return (
     <>
-      <ambientLight intensity={0.2} />
-      <directionalLight position={[5, 8, 5]} intensity={1.5} color="#e0f2fe" />
-      {/* Sunrise glow */}
-      <pointLight position={[0, -2, -10]} intensity={2} color="#d4af37" distance={20} />
-      {/* Neon blue accent */}
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[5, 8, 5]} intensity={1.5} color="#ffffff" />
+      <pointLight position={[0, -2, -10]} intensity={1} color="#d4af37" distance={20} />
       <pointLight position={[-5, 2, -2]} intensity={1.5} color="#3b82f6" distance={10} />
       
-      <Sparkles count={150} scale={15} size={2} speed={0.3} opacity={0.3} color="#3b82f6" />
+      <Sparkles count={100} scale={15} size={2} speed={0.3} opacity={0.5} color="#3b82f6" />
       
       <HimalayanScene />
       <PaymentCard />
       
-      <Environment preset="night" />
-      <ContactShadows position={[0, -2.5, 0]} opacity={0.5} scale={15} blur={2.5} far={4} />
+      <Environment preset="city" />
+      <ContactShadows position={[0, -2.5, 0]} opacity={0.2} scale={15} blur={2.5} far={4} color="#000" />
       
-      {/* Fog for depth */}
-      <fog attach="fog" args={['#020617', 5, 20]} />
+      <fog attach="fog" args={['#faf9f6', 5, 20]} />
     </>
   );
 }
@@ -204,7 +192,7 @@ const TiltCard = ({ children, className }: any) => {
       whileHover={{ scale: 1.02 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/0 hover:from-blue-500/10 hover:to-transparent rounded-2xl transition-all duration-500 z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/0 hover:from-blue-500/5 hover:to-transparent rounded-2xl transition-all duration-500 z-0 pointer-events-none" />
       <div style={{ transform: "translateZ(30px)" }} className="relative z-10 h-full">
         {children}
       </div>
@@ -214,17 +202,17 @@ const TiltCard = ({ children, className }: any) => {
 
 const Counter = ({ value, label }: { value: string, label: string }) => {
   return (
-    <div className="flex flex-col items-center justify-center p-6 bg-white/5 backdrop-blur-md rounded-2xl border border-white/5 shadow-xl">
+    <div className="flex flex-col items-center justify-center p-6 bg-white/60 backdrop-blur-md rounded-2xl border border-black/5 shadow-sm hover:shadow-md transition-shadow">
       <motion.h3 
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-2"
+        className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 mb-2"
       >
         {value}
       </motion.h3>
-      <p className="text-blue-400 font-medium tracking-wide uppercase text-sm">{label}</p>
+      <p className="text-blue-500 font-bold tracking-wide uppercase text-sm">{label}</p>
     </div>
   );
 };
@@ -250,13 +238,13 @@ export default function PremiumHomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white selection:bg-blue-500/30 overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-[#faf9f6] text-gray-900 selection:bg-blue-500/30 overflow-x-hidden font-sans">
       {/* --- Ambient Background Glows --- */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-yellow-600/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="fixed top-0 left-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-yellow-400/20 rounded-full blur-[120px] pointer-events-none" />
       
       {/* --- Navigation --- */}
-      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-[#020617]/70 border-b border-white/5">
+      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-white/70 border-b border-black/5">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <motion.span 
@@ -267,17 +255,17 @@ export default function PremiumHomePage() {
             >
               ✦
             </motion.span>
-            <span className="text-xl font-bold tracking-wide text-white">
-              Everest <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Pay</span>
+            <span className="text-xl font-bold tracking-wide text-gray-900">
+              Everest <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-blue-700">Pay</span>
             </span>
           </Link>
           <div className="flex items-center gap-8">
-            <Link href="/services" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+            <Link href="/services" className="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors">
               Services
             </Link>
             <Link href="/services" className="relative group overflow-hidden rounded-full p-[1px]">
-              <span className="absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-300 to-blue-600 opacity-70 group-hover:opacity-100 transition-opacity animate-[spin_4s_linear_infinite]" />
-              <div className="relative px-6 py-2.5 bg-[#020617] rounded-full text-sm font-medium group-hover:bg-opacity-0 transition-all duration-300 text-white">
+              <span className="absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-600 opacity-70 group-hover:opacity-100 transition-opacity animate-[spin_4s_linear_infinite]" />
+              <div className="relative px-6 py-2.5 bg-white rounded-full text-sm font-bold group-hover:bg-opacity-90 transition-all duration-300 text-gray-900 shadow-sm">
                 Get Started
               </div>
             </Link>
@@ -287,21 +275,20 @@ export default function PremiumHomePage() {
 
       {/* --- Hero Section --- */}
       <section className="relative h-screen w-full flex items-center justify-center pt-20">
-        <div className="absolute inset-0 z-0 opacity-80 mix-blend-screen pointer-events-none">
-          <Suspense fallback={<div className="w-full h-full bg-[#020617]" />}>
+        <div className="absolute inset-0 z-0 opacity-80 mix-blend-multiply pointer-events-none">
+          <Suspense fallback={<div className="w-full h-full bg-[#faf9f6]" />}>
             <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
               <Scene />
             </Canvas>
           </Suspense>
         </div>
         
-        {/* Overlay Content */}
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6 pointer-events-none">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold mb-8 border border-white/10 bg-white/5 backdrop-blur-md"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold mb-8 border border-black/10 bg-white/60 backdrop-blur-md shadow-sm"
           >
             <span className="text-yellow-500">⚡</span> The Future of Digital Subscriptions in Nepal
           </motion.div>
@@ -310,10 +297,10 @@ export default function PremiumHomePage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6"
+            className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6 text-gray-900"
           >
             Nepal's Smartest <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-200 to-white">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-blue-500 to-gray-800">
               Digital Payment Platform
             </span>
           </motion.h1>
@@ -322,7 +309,7 @@ export default function PremiumHomePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto font-light"
+            className="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto font-medium"
           >
             Premium subscriptions at your fingertips. Instant delivery, secure payments, and 24/7 support—built for Nepal.
           </motion.p>
@@ -333,29 +320,28 @@ export default function PremiumHomePage() {
             transition={{ duration: 0.8, delay: 0.8 }}
             className="flex items-center justify-center gap-4 pointer-events-auto"
           >
-            <Link href="/services" className="px-8 py-4 bg-white text-black rounded-full font-bold hover:bg-gray-200 hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+            <Link href="/services" className="px-8 py-4 bg-gray-900 text-white rounded-full font-bold hover:bg-blue-600 hover:scale-105 transition-all shadow-[0_10px_30px_rgba(59,130,246,0.3)]">
               Explore Services
             </Link>
-            <a href="#how-it-works" className="px-8 py-4 rounded-full font-bold text-white border border-white/20 hover:bg-white/5 transition-all backdrop-blur-sm">
+            <a href="#how-it-works" className="px-8 py-4 rounded-full font-bold text-gray-900 border border-gray-300 hover:bg-black/5 transition-all backdrop-blur-sm">
               How It Works
             </a>
           </motion.div>
         </div>
 
-        {/* Scroll Indicator */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5, duration: 1 }}
           className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         >
-          <span className="text-xs text-gray-500 tracking-widest uppercase">Scroll</span>
-          <div className="w-[1px] h-12 bg-gradient-to-b from-gray-500 to-transparent" />
+          <span className="text-xs text-gray-500 font-bold tracking-widest uppercase">Scroll</span>
+          <div className="w-[1px] h-12 bg-gradient-to-b from-gray-400 to-transparent" />
         </motion.div>
       </section>
 
       {/* --- Trust Stats --- */}
-      <section className="py-20 relative z-10 border-y border-white/5 bg-[#020617]/50 backdrop-blur-xl">
+      <section className="py-20 relative z-10 border-y border-black/5 bg-white/40 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <Counter value="10k+" label="Active Users" />
@@ -374,11 +360,11 @@ export default function PremiumHomePage() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-4xl md:text-5xl font-bold mb-6"
+              className="text-4xl md:text-5xl font-extrabold mb-6 text-gray-900"
             >
               Premium Services
             </motion.h2>
-            <p className="text-gray-400 text-lg">Instant access to global platforms.</p>
+            <p className="text-gray-600 font-medium text-lg">Instant access to global platforms.</p>
           </div>
 
           {!loaded ? (
@@ -389,18 +375,18 @@ export default function PremiumHomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {services.map((service, idx) => (
                 <TiltCard key={service.id} className="h-full">
-                  <Link href={`/checkout/${service.id}`} className="block h-full bg-[#0a0f1e] border border-white/5 rounded-2xl p-6 hover:border-blue-500/50 transition-colors group">
-                    <div className="text-5xl mb-6 transform group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-300">
+                  <Link href={`/checkout/${service.id}`} className="block h-full bg-white border border-black/5 shadow-sm rounded-2xl p-6 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/10 transition-all group">
+                    <div className="text-5xl mb-6 transform group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-300 drop-shadow-sm">
                       {service.icon}
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">{service.name}</h3>
-                    <p className="text-sm text-gray-400 mb-8 line-clamp-2">{service.description}</p>
-                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
-                      <span className="text-lg font-bold text-white">
-                        <span className="text-xs text-blue-400 mr-1">NPR</span>
+                    <h3 className="text-xl font-extrabold text-gray-900 mb-2">{service.name}</h3>
+                    <p className="text-sm text-gray-600 mb-8 line-clamp-2 font-medium">{service.description}</p>
+                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-black/5">
+                      <span className="text-lg font-bold text-gray-900">
+                        <span className="text-xs text-blue-500 mr-1 font-bold">NPR</span>
                         {service.price}
                       </span>
-                      <span className="text-blue-500 opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all font-semibold">
+                      <span className="text-blue-600 opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all font-bold">
                         Buy →
                       </span>
                     </div>
@@ -411,7 +397,7 @@ export default function PremiumHomePage() {
           )}
           
           <div className="text-center mt-16">
-            <Link href="/services" className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-sm font-bold">
+            <Link href="/services" className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-gray-300 bg-white hover:bg-gray-50 transition-colors text-sm font-bold shadow-sm">
               View All Services
             </Link>
           </div>
@@ -419,16 +405,16 @@ export default function PremiumHomePage() {
       </section>
 
       {/* --- How It Works --- */}
-      <section id="how-it-works" className="py-32 bg-[#050b1a] relative z-10 border-y border-white/5 overflow-hidden">
+      <section id="how-it-works" className="py-32 bg-white relative z-10 border-y border-black/5 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 relative">
           <div className="text-center mb-24">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">How It Works</h2>
-            <p className="text-gray-400 text-lg">Seamless experience from start to finish.</p>
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-gray-900">How It Works</h2>
+            <p className="text-gray-600 font-medium text-lg">Seamless experience from start to finish.</p>
           </div>
 
           <div className="relative">
             {/* Connecting Line */}
-            <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent hidden md:block -translate-y-1/2" />
+            <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-blue-200 to-transparent hidden md:block -translate-y-1/2" />
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
               {[
@@ -444,11 +430,11 @@ export default function PremiumHomePage() {
                   transition={{ delay: i * 0.2 }}
                   className="flex flex-col items-center text-center"
                 >
-                  <div className="w-20 h-20 rounded-full bg-[#0a0f1e] border border-blue-500/30 flex items-center justify-center text-2xl font-bold text-blue-400 mb-6 shadow-[0_0_30px_rgba(59,130,246,0.15)]">
+                  <div className="w-20 h-20 rounded-full bg-white border-2 border-blue-100 flex items-center justify-center text-2xl font-black text-blue-500 mb-6 shadow-lg shadow-blue-500/10">
                     {step.num}
                   </div>
-                  <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
-                  <p className="text-gray-400 leading-relaxed">{step.desc}</p>
+                  <h3 className="text-2xl font-extrabold mb-4 text-gray-900">{step.title}</h3>
+                  <p className="text-gray-600 font-medium leading-relaxed">{step.desc}</p>
                 </motion.div>
               ))}
             </div>
@@ -460,8 +446,8 @@ export default function PremiumHomePage() {
       <section className="py-32 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">Trusted by Thousands</h2>
-            <p className="text-gray-400 text-lg">See what our premium members have to say.</p>
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-gray-900">Trusted by Thousands</h2>
+            <p className="text-gray-600 font-medium text-lg">See what our premium members have to say.</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -476,18 +462,18 @@ export default function PremiumHomePage() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-white/5 border border-white/10 rounded-2xl p-8 relative overflow-hidden"
+                className="bg-white border border-gray-200 shadow-sm rounded-2xl p-8 relative overflow-hidden"
               >
-                <div className="absolute top-4 right-4 text-blue-500/20 text-6xl font-serif">"</div>
-                <div className="flex gap-1 mb-6 text-yellow-500 text-sm">
+                <div className="absolute top-4 right-4 text-blue-100 text-6xl font-serif">"</div>
+                <div className="flex gap-1 mb-6 text-yellow-400 text-sm">
                   ★★★★★
                 </div>
-                <p className="text-gray-300 mb-8 relative z-10 italic">"{review.text}"</p>
+                <p className="text-gray-700 font-medium mb-8 relative z-10 italic">"{review.text}"</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center font-bold text-white shadow-lg">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center font-bold text-white shadow-md">
                     {review.initial}
                   </div>
-                  <span className="font-bold text-white">{review.name}</span>
+                  <span className="font-bold text-gray-900">{review.name}</span>
                 </div>
               </motion.div>
             ))}
@@ -496,50 +482,50 @@ export default function PremiumHomePage() {
       </section>
 
       {/* --- Footer --- */}
-      <footer className="bg-[#020617] pt-24 pb-12 border-t border-white/10 relative z-10">
+      <footer className="bg-white pt-24 pb-12 border-t border-gray-200 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             <div className="md:col-span-1">
               <Link href="/" className="flex items-center gap-2 mb-6">
-                <span className="text-2xl text-blue-500">✦</span>
-                <span className="text-xl font-bold text-white">Everest Pay</span>
+                <span className="text-2xl text-blue-600">✦</span>
+                <span className="text-xl font-black text-gray-900">Everest Pay</span>
               </Link>
-              <p className="text-gray-400 text-sm leading-relaxed">
+              <p className="text-gray-600 font-medium text-sm leading-relaxed">
                 The most secure and premium subscription platform in Nepal. Trusted by thousands.
               </p>
             </div>
             
             <div>
-              <h4 className="text-white font-bold mb-6">Quick Links</h4>
+              <h4 className="text-gray-900 font-bold mb-6">Quick Links</h4>
               <ul className="space-y-3">
-                <li><Link href="/" className="text-sm text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-transform">Home</Link></li>
-                <li><Link href="/services" className="text-sm text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-transform">Services</Link></li>
-                <li><Link href="/services" className="text-sm text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-transform">Pricing</Link></li>
+                <li><Link href="/" className="text-sm font-medium text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block transition-transform">Home</Link></li>
+                <li><Link href="/services" className="text-sm font-medium text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block transition-transform">Services</Link></li>
+                <li><Link href="/services" className="text-sm font-medium text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block transition-transform">Pricing</Link></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-white font-bold mb-6">Support</h4>
+              <h4 className="text-gray-900 font-bold mb-6">Support</h4>
               <ul className="space-y-3">
-                <li><a href="#" className="text-sm text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-transform">FAQ</a></li>
-                <li><a href="#" className="text-sm text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-transform">Contact Us</a></li>
-                <li><a href="#" className="text-sm text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-transform">Terms of Service</a></li>
+                <li><a href="#" className="text-sm font-medium text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block transition-transform">FAQ</a></li>
+                <li><a href="#" className="text-sm font-medium text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block transition-transform">Contact Us</a></li>
+                <li><a href="#" className="text-sm font-medium text-gray-500 hover:text-blue-600 hover:translate-x-1 inline-block transition-transform">Terms of Service</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-white font-bold mb-6">Secure Payments</h4>
+              <h4 className="text-gray-900 font-bold mb-6">Secure Payments</h4>
               <div className="flex flex-wrap gap-3">
-                <div className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-md text-xs font-bold text-green-400">eSewa</div>
-                <div className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-md text-xs font-bold text-purple-400">Khalti</div>
-                <div className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-md text-xs font-bold text-blue-400">VISA</div>
+                <div className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-md text-xs font-bold text-green-600 shadow-sm">eSewa</div>
+                <div className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-md text-xs font-bold text-purple-600 shadow-sm">Khalti</div>
+                <div className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-md text-xs font-bold text-blue-600 shadow-sm">VISA</div>
               </div>
             </div>
           </div>
           
-          <div className="pt-8 border-t border-white/10 text-center flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-500 text-sm">© 2026 Everest Pay. All rights reserved.</p>
-            <p className="text-gray-500 text-sm flex items-center gap-2">
+          <div className="pt-8 border-t border-gray-200 text-center flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-500 font-medium text-sm">© 2026 Everest Pay. All rights reserved.</p>
+            <p className="text-gray-500 font-medium text-sm flex items-center gap-2">
               Made with <span className="text-red-500">❤️</span> in Nepal
             </p>
           </div>
