@@ -113,23 +113,46 @@ function PaymentCard() {
   );
 }
 
-function HimalayanScene() {
+function MountEverest() {
   return (
-    <group position={[0, -3, -8]}>
-      {/* Background Mountain */}
-      <mesh position={[-4, 2, -6]} rotation={[0, Math.PI / 4, 0]}>
-        <coneGeometry args={[5, 8, 4]} />
-        <meshStandardMaterial color="#e2e8f0" roughness={0.9} />
+    <group position={[0, -4, -15]} scale={1.2}>
+      {/* Main Base Mountain (Everest) */}
+      <mesh position={[0, 0, 0]} rotation={[0, Math.PI / 6, 0]}>
+        <coneGeometry args={[6, 14, 5]} />
+        <meshStandardMaterial color="#64748b" roughness={0.9} />
       </mesh>
-      {/* Foreground Mountain */}
-      <mesh position={[3, 1, -4]} rotation={[0, -Math.PI / 6, 0]}>
-        <coneGeometry args={[4, 6, 4]} />
-        <meshStandardMaterial color="#cbd5e1" roughness={0.8} />
+      {/* Snow Cap Everest */}
+      <mesh position={[0, 5.01, 0]} rotation={[0, Math.PI / 6, 0]}>
+        <coneGeometry args={[2.14, 5, 5]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.2} />
+      </mesh>
+
+      {/* Lhotse (Side Peak Left) */}
+      <mesh position={[-5, -2, 2]} rotation={[0, 0, 0]}>
+        <coneGeometry args={[4, 9, 4]} />
+        <meshStandardMaterial color="#475569" roughness={0.9} />
+      </mesh>
+      {/* Snow Cap Lhotse */}
+      <mesh position={[-5, 1.51, 2]} rotation={[0, 0, 0]}>
+        <coneGeometry args={[1.56, 3.5, 4]} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.2} />
+      </mesh>
+
+      {/* Nuptse (Side Peak Right) */}
+      <mesh position={[5, -3, 1]} rotation={[0, Math.PI / 4, 0]}>
+        <coneGeometry args={[4.5, 8, 5]} />
+        <meshStandardMaterial color="#94a3b8" roughness={0.9} />
+      </mesh>
+      {/* Snow Cap Nuptse */}
+      <mesh position={[5, 0.51, 1]} rotation={[0, Math.PI / 4, 0]}>
+        <coneGeometry args={[1.68, 3, 5]} />
+        <meshStandardMaterial color="#f1f5f9" roughness={0.2} />
       </mesh>
       
-      {/* Clouds */}
-      <Cloud position={[-5, 4, -5]} speed={0.1} opacity={0.3} color="#ffffff" />
-      <Cloud position={[5, 3, -3]} speed={0.15} opacity={0.2} color="#ffffff" />
+      {/* Clouds wrapping around the peaks */}
+      <Cloud position={[-3, 2, 4]} speed={0.1} opacity={0.4} color="#ffffff" />
+      <Cloud position={[4, 1, 3]} speed={0.15} opacity={0.3} color="#ffffff" />
+      <Cloud position={[0, 0, 6]} speed={0.05} opacity={0.5} color="#e2e8f0" />
     </group>
   );
 }
@@ -144,13 +167,13 @@ function Scene() {
       
       <Sparkles count={100} scale={15} size={2} speed={0.3} opacity={0.5} color="#3b82f6" />
       
-      <HimalayanScene />
+      <MountEverest />
       <PaymentCard />
       
       <Environment preset="city" />
       <ContactShadows position={[0, -2.5, 0]} opacity={0.2} scale={15} blur={2.5} far={4} color="#000" />
       
-      <fog attach="fog" args={['#faf9f6', 5, 20]} />
+      <fog attach="fog" args={['#faf9f6', 10, 40]} />
     </>
   );
 }
