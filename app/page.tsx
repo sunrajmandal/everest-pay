@@ -312,9 +312,9 @@ export default function PremiumHomePage() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6"
           >
-            Pay Smarter with <br/>
+            Nepal's Smartest <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-200 to-white">
-              Everest Pay
+              Digital Payment Platform
             </span>
           </motion.h1>
           
