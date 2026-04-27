@@ -1,8 +1,13 @@
 'use client';
 
+import React, { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Float, Environment, ContactShadows, Sparkles, Cloud, RoundedBox, Text } from '@react-three/drei';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import * as THREE from 'three';
 
+// --- Types ---
 interface Service {
   id: string;
   name: string;
@@ -12,7 +17,166 @@ interface Service {
   category: string;
 }
 
-export default function HomePage() {
+// --- 3D Components ---
+
+function PaymentCard() {
+  const cardRef = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (cardRef.current) {
+      cardRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.15;
+      cardRef.current.rotation.x = Math.cos(state.clock.elapsedTime * 0.2) * 0.1;
+    }
+  });
+
+  return (
+    <Float speed={2} rotationIntensity={0.5} floatIntensity={1.5}>
+      <group ref={cardRef} rotation={[0.2, Math.PI / 6, 0]} position={[0, 0, 0]}>
+        {/* Card Body */}
+        <RoundedBox args={[3.4, 2.1, 0.05]} radius={0.1} smoothness={4}>
+          <meshPhysicalMaterial 
+            color="#050505" 
+            metalness={0.9} 
+            roughness={0.1} 
+            clearcoat={1} 
+            clearcoatRoughness={0.1}
+          />
+        </RoundedBox>
+        {/* Chip */}
+        <RoundedBox args={[0.4, 0.3, 0.06]} radius={0.05} position={[-1.2, 0.4, 0]}>
+          <meshStandardMaterial color="#d4af37" metalness={1} roughness={0.3} />
+        </RoundedBox>
+        {/* Contactless Icon */}
+        <Text position={[1.2, 0.4, 0.03]} fontSize={0.15} color="#fff" fillOpacity={0.5}>
+          )))
+        </Text>
+        {/* Card Number */}
+        <Text position={[0, -0.2, 0.03]} fontSize={0.2} color="#fff" letterSpacing={0.1}>
+          **** **** **** 2026
+        </Text>
+        {/* Brand */}
+        <Text position={[-0.7, 0.7, 0.03]} fontSize={0.25} color="#3b82f6" outlineWidth={0.01} outlineColor="#3b82f6">
+          ✦ Everest Pay
+        </Text>
+        {/* Card holder */}
+        <Text position={[-1.0, -0.6, 0.03]} fontSize={0.12} color="#aaa" letterSpacing={0.05}>
+          PREMIUM MEMBER
+        </Text>
+      </group>
+    </Float>
+  );
+}
+
+function HimalayanScene() {
+  return (
+    <group position={[0, -3, -8]}>
+      {/* Background Mountain */}
+      <mesh position={[-4, 2, -6]} rotation={[0, Math.PI / 4, 0]}>
+        <coneGeometry args={[5, 8, 4]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.9} />
+      </mesh>
+      {/* Foreground Mountain */}
+      <mesh position={[3, 1, -4]} rotation={[0, -Math.PI / 6, 0]}>
+        <coneGeometry args={[4, 6, 4]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.8} />
+      </mesh>
+      
+      {/* Clouds */}
+      <Cloud position={[-5, 4, -5]} speed={0.1} opacity={0.1} color="#3b82f6" />
+      <Cloud position={[5, 3, -3]} speed={0.15} opacity={0.1} color="#d4af37" />
+    </group>
+  );
+}
+
+function Scene() {
+  return (
+    <>
+      <ambientLight intensity={0.2} />
+      <directionalLight position={[5, 8, 5]} intensity={1.5} color="#e0f2fe" />
+      {/* Sunrise glow */}
+      <pointLight position={[0, -2, -10]} intensity={2} color="#d4af37" distance={20} />
+      {/* Neon blue accent */}
+      <pointLight position={[-5, 2, -2]} intensity={1.5} color="#3b82f6" distance={10} />
+      
+      <Sparkles count={150} scale={15} size={2} speed={0.3} opacity={0.3} color="#3b82f6" />
+      
+      <HimalayanScene />
+      <PaymentCard />
+      
+      <Environment preset="night" />
+      <ContactShadows position={[0, -2.5, 0]} opacity={0.5} scale={15} blur={2.5} far={4} />
+      
+      {/* Fog for depth */}
+      <fog attach="fog" args={['#020617', 5, 20]} />
+    </>
+  );
+}
+
+// --- UI Helpers ---
+
+const TiltCard = ({ children, className }: any) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 20 });
+  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 20 });
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], [10, -10]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [-10, 10]);
+
+  function handleMouse(event: any) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  }
+
+  function handleMouseLeave() {
+    x.set(0);
+    y.set(0);
+  }
+
+  return (
+    <motion.div
+      onMouseMove={handleMouse}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateY, rotateX, transformStyle: "preserve-3d" }}
+      className={`relative ${className}`}
+      whileHover={{ scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/0 hover:from-blue-500/10 hover:to-transparent rounded-2xl transition-all duration-500 z-0 pointer-events-none" />
+      <div style={{ transform: "translateZ(30px)" }} className="relative z-10 h-full">
+        {children}
+      </div>
+    </motion.div>
+  );
+};
+
+const Counter = ({ value, label }: { value: string, label: string }) => {
+  return (
+    <div className="flex flex-col items-center justify-center p-6 bg-white/5 backdrop-blur-md rounded-2xl border border-white/5 shadow-xl">
+      <motion.h3 
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 mb-2"
+      >
+        {value}
+      </motion.h3>
+      <p className="text-blue-400 font-medium tracking-wide uppercase text-sm">{label}</p>
+    </div>
+  );
+};
+
+// --- Main Page Component ---
+
+export default function PremiumHomePage() {
   const [services, setServices] = useState<Service[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -21,7 +185,7 @@ export default function HomePage() {
       .then(res => res.json())
       .then(data => { 
         if (Array.isArray(data)) {
-          setServices(data.slice(0, 6)); 
+          setServices(data.slice(0, 8)); 
         } else {
           setServices([]);
         }
@@ -31,311 +195,301 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="hero-gradient min-h-screen">
-      {/* Nav */}
-      <nav style={{ borderBottom: '1px solid var(--border-color)' }} className="sticky top-0 z-40 backdrop-blur-xl bg-[rgba(10,14,26,0.8)]">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold gradient-text" style={{ textDecoration: 'none' }}>
-            ✦ Everest Pay
+    <div className="min-h-screen bg-[#020617] text-white selection:bg-blue-500/30 overflow-x-hidden font-sans">
+      {/* --- Ambient Background Glows --- */}
+      <div className="fixed top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-yellow-600/5 rounded-full blur-[120px] pointer-events-none" />
+      
+      {/* --- Navigation --- */}
+      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-[#020617]/70 border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <motion.span 
+              initial={{ rotate: -90, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="text-2xl text-blue-500"
+            >
+              ✦
+            </motion.span>
+            <span className="text-xl font-bold tracking-wide text-white">
+              Everest <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Pay</span>
+            </span>
           </Link>
-          <div className="flex items-center gap-6">
-            <Link href="/services" className="text-sm text-[var(--text-secondary)] hover:text-white transition-colors" style={{ textDecoration: 'none' }}>
+          <div className="flex items-center gap-8">
+            <Link href="/services" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
               Services
             </Link>
-            <Link href="/services" className="btn-primary text-sm" style={{ textDecoration: 'none', padding: '8px 20px' }}>
-              Get Started
+            <Link href="/services" className="relative group overflow-hidden rounded-full p-[1px]">
+              <span className="absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-300 to-blue-600 opacity-70 group-hover:opacity-100 transition-opacity animate-[spin_4s_linear_infinite]" />
+              <div className="relative px-6 py-2.5 bg-[#020617] rounded-full text-sm font-medium group-hover:bg-opacity-0 transition-all duration-300 text-white">
+                Get Started
+              </div>
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="max-w-7xl mx-auto px-6 pt-20 pb-16">
-        <div className="text-center max-w-3xl mx-auto animate-fade-in-up">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium mb-6"
-               style={{ background: 'var(--accent-glow)', color: 'var(--accent-primary)', border: '1px solid rgba(129,140,248,0.2)' }}>
-            🇳🇵 Trusted by 1000+ Nepali Customers
-          </div>
-          <h1 className="text-5xl md:text-6xl font-extrabold leading-tight mb-6">
-            Premium Subscriptions
-            <br />
-            <span className="gradient-text">at Nepali Prices</span>
-          </h1>
-          <p className="text-lg text-[var(--text-secondary)] mb-8 max-w-xl mx-auto leading-relaxed">
-            Get Netflix, Spotify, Xbox Game Pass & more — pay easily with eSewa, Khalti or Cards. Activated instantly.
-          </p>
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <Link href="/services" className="btn-primary text-base" style={{ textDecoration: 'none', padding: '14px 36px' }}>
-              Browse Services →
+      {/* --- Hero Section --- */}
+      <section className="relative h-screen w-full flex items-center justify-center pt-20">
+        <div className="absolute inset-0 z-0 opacity-80 mix-blend-screen pointer-events-none">
+          <Suspense fallback={<div className="w-full h-full bg-[#020617]" />}>
+            <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+              <Scene />
+            </Canvas>
+          </Suspense>
+        </div>
+        
+        {/* Overlay Content */}
+        <div className="relative z-10 text-center max-w-4xl mx-auto px-6 pointer-events-none">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold mb-8 border border-white/10 bg-white/5 backdrop-blur-md"
+          >
+            <span className="text-yellow-500">⚡</span> The Future of Digital Subscriptions in Nepal
+          </motion.div>
+          
+          <motion.h1 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6"
+          >
+            Pay Smarter with <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-200 to-white">
+              Everest Pay
+            </span>
+          </motion.h1>
+          
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto font-light"
+          >
+            Premium subscriptions at your fingertips. Instant delivery, secure payments, and 24/7 support—built for Nepal.
+          </motion.p>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="flex items-center justify-center gap-4 pointer-events-auto"
+          >
+            <Link href="/services" className="px-8 py-4 bg-white text-black rounded-full font-bold hover:bg-gray-200 hover:scale-105 transition-all shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+              Explore Services
             </Link>
-            <a href="#how-it-works" className="btn-secondary text-base" style={{ textDecoration: 'none' }}>
-              How it Works
+            <a href="#how-it-works" className="px-8 py-4 rounded-full font-bold text-white border border-white/20 hover:bg-white/5 transition-all backdrop-blur-sm">
+              How It Works
             </a>
+          </motion.div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5, duration: 1 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        >
+          <span className="text-xs text-gray-500 tracking-widest uppercase">Scroll</span>
+          <div className="w-[1px] h-12 bg-gradient-to-b from-gray-500 to-transparent" />
+        </motion.div>
+      </section>
+
+      {/* --- Trust Stats --- */}
+      <section className="py-20 relative z-10 border-y border-white/5 bg-[#020617]/50 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <Counter value="10k+" label="Active Users" />
+            <Counter value="5min" label="Avg. Delivery" />
+            <Counter value="100%" label="Secure Pay" />
+            <Counter value="24/7" label="Support" />
           </div>
         </div>
       </section>
 
-      {/* Why Choose Us */}
-      <section className="max-w-7xl mx-auto px-6 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Choose Us</h2>
-          <p className="text-[var(--text-secondary)]">The most reliable subscription partner in Nepal</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { icon: '🚀', title: 'Fast Delivery', desc: 'Most orders are processed within 1-4 hours of payment.' },
-            { icon: '🔒', title: 'Secure Payments', desc: 'Your transactions are protected with industry-standard encryption.' },
-            { icon: '🎧', title: '24/7 Support', desc: 'Our dedicated team is always here to help you with any issues.' },
-            { icon: '⭐️', title: 'Trusted Service', desc: '100% genuine subscriptions with full warranty and support.' },
-          ].map((item, i) => (
-            <div key={i} className="glass-card p-8 text-center hover:translate-y-[-8px] transition-all duration-300">
-              <div className="text-4xl mb-4">{item.icon}</div>
-              <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* --- Services Grid --- */}
+      <section className="py-32 relative z-10">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-20">
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-4xl md:text-5xl font-bold mb-6"
+            >
+              Premium Services
+            </motion.h2>
+            <p className="text-gray-400 text-lg">Instant access to global platforms.</p>
+          </div>
 
-      {/* Featured Services */}
-      {loaded && services.length > 0 && (
-        <section className="max-w-7xl mx-auto px-6 py-16">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Popular Services</h2>
-              <p className="text-[var(--text-secondary)]">Choose from our most popular subscription plans</p>
+          {!loaded ? (
+            <div className="flex justify-center py-20">
+              <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
             </div>
-            <Link href="/services" className="text-[var(--accent-primary)] font-semibold hover:underline" style={{ textDecoration: 'none' }}>
-              View All →
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {services.map((service, idx) => (
+                <TiltCard key={service.id} className="h-full">
+                  <Link href={`/checkout/${service.id}`} className="block h-full bg-[#0a0f1e] border border-white/5 rounded-2xl p-6 hover:border-blue-500/50 transition-colors group">
+                    <div className="text-5xl mb-6 transform group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-300">
+                      {service.icon}
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">{service.name}</h3>
+                    <p className="text-sm text-gray-400 mb-8 line-clamp-2">{service.description}</p>
+                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                      <span className="text-lg font-bold text-white">
+                        <span className="text-xs text-blue-400 mr-1">NPR</span>
+                        {service.price}
+                      </span>
+                      <span className="text-blue-500 opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all font-semibold">
+                        Buy →
+                      </span>
+                    </div>
+                  </Link>
+                </TiltCard>
+              ))}
+            </div>
+          )}
+          
+          <div className="text-center mt-16">
+            <Link href="/services" className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-sm font-bold">
+              View All Services
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, i) => (
-              <Link
-                key={service.id}
-                href={`/checkout/${service.id}`}
-                className={`glass-card p-6 flex flex-col hover:border-[var(--accent-primary)] transition-all`}
-                style={{ textDecoration: 'none' }}
+        </div>
+      </section>
+
+      {/* --- How It Works --- */}
+      <section id="how-it-works" className="py-32 bg-[#050b1a] relative z-10 border-y border-white/5 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 relative">
+          <div className="text-center mb-24">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">How It Works</h2>
+            <p className="text-gray-400 text-lg">Seamless experience from start to finish.</p>
+          </div>
+
+          <div className="relative">
+            {/* Connecting Line */}
+            <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent hidden md:block -translate-y-1/2" />
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
+              {[
+                { num: '01', title: 'Choose Service', desc: 'Select from our wide range of premium global subscriptions.' },
+                { num: '02', title: 'Pay Securely', desc: 'Complete payment using eSewa, Khalti, or Bank Transfer.' },
+                { num: '03', title: 'Get Delivered', desc: 'Receive your credentials instantly via email & WhatsApp.' }
+              ].map((step, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.2 }}
+                  className="flex flex-col items-center text-center"
+                >
+                  <div className="w-20 h-20 rounded-full bg-[#0a0f1e] border border-blue-500/30 flex items-center justify-center text-2xl font-bold text-blue-400 mb-6 shadow-[0_0_30px_rgba(59,130,246,0.15)]">
+                    {step.num}
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
+                  <p className="text-gray-400 leading-relaxed">{step.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- Testimonials --- */}
+      <section className="py-32 relative z-10">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">Trusted by Thousands</h2>
+            <p className="text-gray-400 text-lg">See what our premium members have to say.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { name: 'Anish Shrestha', initial: 'A', text: 'Flawless experience. Got my Netflix account instantly. The 3D UI on this site is insane btw.' },
+              { name: 'Priya Thapa', initial: 'P', text: 'Best customer service ever. They helped me set up Spotify family in minutes.' },
+              { name: 'Rohan Gurung', initial: 'R', text: 'Secure, fast, and very premium feel. Used eSewa and it worked like a charm.' }
+            ].map((review, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-white/5 border border-white/10 rounded-2xl p-8 relative overflow-hidden"
               >
-                <div className="text-4xl mb-4">{service.icon}</div>
-                <h3 className="text-lg font-semibold text-white mb-2">{service.name}</h3>
-                <p className="text-sm text-[var(--text-secondary)] mb-6 line-clamp-2 flex-1">{service.description}</p>
-                <div className="flex items-center justify-between mt-auto">
-                  <span className="text-2xl font-bold text-[var(--accent-primary)]">
-                    NPR {service.price}
-                  </span>
-                  <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-[rgba(255,255,255,0.05)] text-[var(--text-muted)] uppercase tracking-widest">
-                    {service.category}
-                  </span>
+                <div className="absolute top-4 right-4 text-blue-500/20 text-6xl font-serif">"</div>
+                <div className="flex gap-1 mb-6 text-yellow-500 text-sm">
+                  ★★★★★
                 </div>
-              </Link>
+                <p className="text-gray-300 mb-8 relative z-10 italic">"{review.text}"</p>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center font-bold text-white shadow-lg">
+                    {review.initial}
+                  </div>
+                  <span className="font-bold text-white">{review.name}</span>
+                </div>
+              </motion.div>
             ))}
           </div>
-        </section>
-      )}
-
-      {/* How it Works */}
-      <section id="how-it-works" className="max-w-7xl mx-auto px-6 py-24 relative overflow-hidden">
-        <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--border-color)] to-transparent -z-10 hidden md:block"></div>
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
-          <p className="text-[var(--text-secondary)]">Getting your subscription is easier than ever</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {[
-            { step: '01', icon: '🎯', title: 'Choose Subscription', desc: 'Browse and select the plan that fits your needs.' },
-            { step: '02', icon: '💳', title: 'Pay Securely', desc: 'Pay instantly with eSewa, Khalti, or Bank Cards.' },
-            { step: '03', icon: '⚙️', title: 'Order Processed', desc: 'Our team verifies your payment and activates your account.' },
-            { step: '04', icon: '📧', title: 'Receive Email', desc: 'Get your login credentials delivered straight to your inbox.' },
-          ].map((item, i) => (
-            <div key={i} className="text-center relative">
-              <div className="w-20 h-20 mx-auto mb-6 flex items-center justify-center rounded-[28px] text-3xl bg-[var(--bg-card)] border border-[var(--border-color)] shadow-xl relative z-10">
-                {item.icon}
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-[var(--accent-primary)] text-white text-xs font-bold rounded-full flex items-center justify-center border-4 border-[var(--bg-primary)]">
-                  {item.step}
-                </div>
-              </div>
-              <h3 className="text-lg font-bold mb-2">{item.title}</h3>
-              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="max-w-7xl mx-auto px-6 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Customers Say</h2>
-          <p className="text-[var(--text-secondary)]">Trusted by thousands of users across Nepal</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            { name: 'Anish Shrestha', rating: 5, feedback: 'Best service in Nepal! My Netflix was activated within an hour. Highly recommended!' },
-            { name: 'Priya Thapa', rating: 5, feedback: 'I was worried about shared accounts, but their Spotify Family plan works perfectly. Great support!' },
-            { name: 'Rohan Gurung', rating: 4, feedback: 'Very easy to pay with eSewa. The Game Pass activation took a bit longer but the support team kept me updated.' },
-          ].map((item, i) => (
-            <div key={i} className="glass-card p-8 relative">
-              <div className="text-[var(--accent-primary)] text-4xl absolute top-6 right-8 opacity-20">“</div>
-              <div className="flex gap-1 mb-4">
-                {[...Array(5)].map((_, j) => (
-                  <span key={j} className={j < item.rating ? "text-yellow-500" : "text-gray-600"}>★</span>
-                ))}
-              </div>
-              <p className="text-[var(--text-secondary)] italic mb-6 leading-relaxed">"{item.feedback}"</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center font-bold text-white uppercase">
-                  {item.name[0]}
-                </div>
-                <span className="font-bold text-white">{item.name}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Referral Banner */}
-      <section className="max-w-7xl mx-auto px-6 py-12">
-        <div className="rounded-[40px] p-12 relative overflow-hidden text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8"
-             style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(99,102,241,0.2) 100%)', border: '1px solid rgba(139,92,246,0.3)' }}>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent-primary)] opacity-10 blur-[100px] -z-10"></div>
-          <div>
-            <h2 className="text-3xl md:text-4xl font-extrabold mb-4">Earn Money by Referring Friends</h2>
-            <p className="text-[var(--text-secondary)] text-lg max-w-xl">
-              Join our affiliate program today and earn up to 10% commission on every successful subscription purchase made through your link.
-            </p>
-          </div>
-          <Link href="/affiliate" className="btn-primary whitespace-nowrap" style={{ textDecoration: 'none', padding: '16px 40px', fontSize: '1.1rem' }}>
-            Join Affiliate Program
-          </Link>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section className="max-w-7xl mx-auto px-6 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 className="text-4xl font-bold mb-4">Need Help?</h2>
-            <p className="text-[var(--text-secondary)] mb-8 text-lg">
-              Have questions about a subscription or need technical support? Our team is available 24/7 to assist you.
-            </p>
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-[rgba(34,197,94,0.1)] flex items-center justify-center text-xl">💬</div>
-                <div>
-                  <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider">WhatsApp / eSewa</p>
-                  <p className="font-semibold text-lg">+977 9848718246</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-[rgba(34,197,94,0.1)] flex items-center justify-center text-xl">📱</div>
-                <div>
-                  <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider">Direct Call / eSewa</p>
-                  <p className="font-semibold text-lg">+977 9766194370</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="glass-card p-8 flex flex-col items-center justify-center text-center">
-            <div className="text-6xl mb-6">🇳🇵</div>
-            <h3 className="text-xl font-bold mb-3">Quick Support</h3>
-            <p className="text-sm text-[var(--text-secondary)] mb-6">
-              The fastest way to get help is via WhatsApp. Click below to start a chat with our support team.
-            </p>
-            <a 
-              href="https://wa.me/9779848718246" 
-              target="_blank" 
-              className="btn-primary w-full py-4 flex items-center justify-center gap-2 font-bold"
-              style={{ background: '#25D366', color: 'white', border: 'none' }}
-            >
-              Chat on WhatsApp
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Professional Footer */}
-      <footer className="bg-[#0a0e1a] pt-20 pb-10 border-t border-[var(--border-color)]">
+      {/* --- Footer --- */}
+      <footer className="bg-[#020617] pt-24 pb-12 border-t border-white/10 relative z-10">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-            {/* Column 1: Brand Info */}
-            <div className="space-y-6">
-              <div className="text-2xl font-bold gradient-text">✦ Everest Pay</div>
-              <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
-                Secure and trusted subscription platform in Nepal. We provide genuine subscriptions at the most affordable prices with instant activation.
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            <div className="md:col-span-1">
+              <Link href="/" className="flex items-center gap-2 mb-6">
+                <span className="text-2xl text-blue-500">✦</span>
+                <span className="text-xl font-bold text-white">Everest Pay</span>
+              </Link>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                The most secure and premium subscription platform in Nepal. Trusted by thousands.
               </p>
-              <div className="flex gap-4">
-                {/* Social Icons Placeholder */}
-                {['facebook', 'instagram', 'tiktok', 'twitter'].map((social) => (
-                  <a key={social} href="#" className="w-10 h-10 rounded-full bg-[rgba(255,255,255,0.05)] border border-[var(--border-color)] flex items-center justify-center hover:bg-[var(--accent-primary)] hover:border-[var(--accent-primary)] transition-all">
-                    <span className="text-xs uppercase font-bold text-white">{social[0]}</span>
-                  </a>
-                ))}
-              </div>
             </div>
-
-            {/* Column 2: Quick Links */}
+            
             <div>
               <h4 className="text-white font-bold mb-6">Quick Links</h4>
-              <ul className="space-y-4">
-                <li><Link href="/" className="footer-link">Home</Link></li>
-                <li><Link href="/services" className="footer-link">Services</Link></li>
-                <li><Link href="/services" className="footer-link">Pricing</Link></li>
-                <li><Link href="/track" className="footer-link">Track Order</Link></li>
-                <li><Link href="/contact" className="footer-link">Contact</Link></li>
+              <ul className="space-y-3">
+                <li><Link href="/" className="text-sm text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-transform">Home</Link></li>
+                <li><Link href="/services" className="text-sm text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-transform">Services</Link></li>
+                <li><Link href="/services" className="text-sm text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-transform">Pricing</Link></li>
               </ul>
             </div>
 
-            {/* Column 3: Support */}
             <div>
               <h4 className="text-white font-bold mb-6">Support</h4>
-              <ul className="space-y-4">
-                <li><Link href="/faq" className="footer-link">FAQ</Link></li>
-                <li><Link href="/refund" className="footer-link">Refund Policy</Link></li>
-                <li><Link href="/privacy" className="footer-link">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="footer-link">Terms and Conditions</Link></li>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-sm text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-transform">FAQ</a></li>
+                <li><a href="#" className="text-sm text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-transform">Contact Us</a></li>
+                <li><a href="#" className="text-sm text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-transform">Terms of Service</a></li>
               </ul>
             </div>
 
-            {/* Column 4: Business */}
             <div>
-              <h4 className="text-white font-bold mb-6">Business</h4>
-              <ul className="space-y-4">
-                <li><Link href="/affiliate" className="footer-link">Affiliate Program</Link></li>
-                <li><Link href="/partner" className="footer-link">Partner With Us</Link></li>
-                <li><Link href="/reseller" className="footer-link">Reseller Program</Link></li>
-                <li><Link href="/api" className="footer-link">API Access</Link></li>
-              </ul>
+              <h4 className="text-white font-bold mb-6">Secure Payments</h4>
+              <div className="flex flex-wrap gap-3">
+                <div className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-md text-xs font-bold text-green-400">eSewa</div>
+                <div className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-md text-xs font-bold text-purple-400">Khalti</div>
+                <div className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-md text-xs font-bold text-blue-400">VISA</div>
+              </div>
             </div>
           </div>
-
-          {/* Payment Badges & Copyright */}
-          <div className="pt-10 border-t border-[rgba(255,255,255,0.05)] flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4 flex-wrap justify-center md:justify-start">
-              <div className="px-3 py-1 bg-white rounded text-[#60bb46] font-bold text-xs">eSewa</div>
-              <div className="px-3 py-1 bg-[#5c2d91] rounded text-white font-bold text-xs">Khalti</div>
-              <div className="px-3 py-1 bg-[rgba(255,255,255,0.1)] rounded text-white font-bold text-xs italic">VISA</div>
-              <div className="px-3 py-1 bg-[rgba(255,255,255,0.1)] rounded text-white font-bold text-xs italic">mastercard</div>
-            </div>
-            <div className="text-[var(--text-muted)] text-sm text-center md:text-right">
-              © 2026 Everest Pay. All rights reserved. <br className="md:hidden" />
-              Crafted with ❤️ for Nepal.
-            </div>
+          
+          <div className="pt-8 border-t border-white/10 text-center flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-500 text-sm">© 2026 Everest Pay. All rights reserved.</p>
+            <p className="text-gray-500 text-sm flex items-center gap-2">
+              Made with <span className="text-red-500">❤️</span> in Nepal
+            </p>
           </div>
         </div>
       </footer>
-
-      {/* Global Styles for Footer Links */}
-      <style jsx>{`
-        .footer-link {
-          color: var(--text-secondary);
-          text-decoration: none;
-          font-size: 14px;
-          transition: color 0.2s;
-        }
-        .footer-link:hover {
-          color: white;
-        }
-      `}</style>
     </div>
   );
 }
