@@ -21,18 +21,50 @@ interface Service {
 
 function PaymentCard() {
   const cardRef = useRef<THREE.Group>(null);
+  const [flipped, setFlipped] = useState(false);
   
   useFrame((state) => {
     if (cardRef.current) {
-      cardRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.15;
-      cardRef.current.rotation.x = Math.cos(state.clock.elapsedTime * 0.2) * 0.1;
+      // Base float
+      const baseRotY = Math.sin(state.clock.elapsedTime * 0.3) * 0.15;
+      const baseRotX = Math.cos(state.clock.elapsedTime * 0.2) * 0.1;
+      
+      // Scroll rotation (spins slowly as you scroll)
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      const scrollRotation = scrollY * 0.005; 
+      
+      // Mouse tracking tilt
+      const mouseX = (state.mouse.x * Math.PI) / 8;
+      const mouseY = (state.mouse.y * Math.PI) / 8;
+      
+      // Flip rotation
+      const flipRotation = flipped ? Math.PI : 0;
+      
+      // Combine targets
+      const targetY = baseRotY + scrollRotation + flipRotation + mouseX;
+      const targetX = baseRotX + (scrollY * 0.001) - mouseY;
+      
+      // Smooth lerp interpolation
+      cardRef.current.rotation.y = THREE.MathUtils.lerp(cardRef.current.rotation.y, targetY, 0.08);
+      cardRef.current.rotation.x = THREE.MathUtils.lerp(cardRef.current.rotation.x, targetX, 0.08);
+      cardRef.current.position.y = THREE.MathUtils.lerp(cardRef.current.position.y, -(scrollY * 0.002), 0.1);
     }
   });
 
   return (
-    <Float speed={2} rotationIntensity={0.5} floatIntensity={1.5}>
-      <group ref={cardRef} rotation={[0.2, Math.PI / 6, 0]} position={[0, 0, 0]}>
-        {/* Card Body */}
+    <Float speed={2} rotationIntensity={0.2} floatIntensity={1.5}>
+      <group 
+        ref={cardRef} 
+        rotation={[0.2, Math.PI / 6, 0]} 
+        position={[0, 0, 0]}
+        onClick={(e) => {
+          e.stopPropagation();
+          setFlipped(!flipped);
+        }}
+        onPointerOver={() => document.body.style.cursor = 'pointer'}
+        onPointerOut={() => document.body.style.cursor = 'auto'}
+      >
+        {/* --- FRONT OF CARD --- */}
         <RoundedBox args={[3.4, 2.1, 0.05]} radius={0.1} smoothness={4}>
           <meshPhysicalMaterial 
             color="#050505" 
@@ -61,6 +93,29 @@ function PaymentCard() {
         {/* Card holder */}
         <Text position={[-1.0, -0.6, 0.03]} fontSize={0.12} color="#aaa" letterSpacing={0.05}>
           PREMIUM MEMBER
+        </Text>
+
+        {/* --- BACK OF CARD --- */}
+        {/* Magnetic Strip */}
+        <RoundedBox args={[3.4, 0.4, 0.06]} radius={0} position={[0, 0.5, -0.01]}>
+          <meshStandardMaterial color="#000" roughness={0.8} />
+        </RoundedBox>
+        {/* Signature Box */}
+        <RoundedBox args={[2.2, 0.3, 0.06]} radius={0.05} position={[-0.4, 0, -0.01]}>
+          <meshStandardMaterial color="#fff" roughness={0.9} />
+        </RoundedBox>
+        <Text position={[-0.4, 0, -0.04]} rotation={[0, Math.PI, 0]} fontSize={0.15} color="#000" fontStyle="italic">
+          Authorized Signature
+        </Text>
+        {/* CVV Box */}
+        <RoundedBox args={[0.6, 0.3, 0.06]} radius={0.05} position={[1.1, 0, -0.01]}>
+          <meshStandardMaterial color="#ddd" />
+        </RoundedBox>
+        <Text position={[1.1, 0, -0.04]} rotation={[0, Math.PI, 0]} fontSize={0.15} color="#000">
+          123
+        </Text>
+        <Text position={[0, -0.7, -0.03]} rotation={[0, Math.PI, 0]} fontSize={0.08} color="#aaa">
+          Issued by Everest Pay Nepal. If found, please return to any branch.
         </Text>
       </group>
     </Float>
